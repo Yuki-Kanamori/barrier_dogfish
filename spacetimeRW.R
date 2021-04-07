@@ -212,8 +212,24 @@ Q <- inla.rgeneric.q(barrier.model, "Q", theta = c(0, log(range)))
 # loc = as.matrix(cbind(m1$lon, m1$lat))
 loc = as.matrix(cbind(temp$lon, temp$lat))
 
+# space-time index
+iset = inla.spde.make.index("s", n.spde = mesh$n, n.group = length(unique(temp$time)))
+
 # projector matrix
 A = inla.spde.make.A(mesh, loc = loc)
+dim(A) 
+table(rowSums(A > 0)) 
+table(rowSums(A)) 
+table(colSums(A) > 0) 
+
+plot(mesh)
+points(loc, col = "red", pch = 16, cex = 0.5)
+
+# projector matrix for space-time 
+A = inla.spde.make.A(mesh, loc = loc, group = temp$time)
+summary(temp)
+
+
 dim(A) 
 table(rowSums(A > 0)) 
 table(rowSums(A)) 

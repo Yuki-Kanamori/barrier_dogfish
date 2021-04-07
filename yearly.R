@@ -311,3 +311,5 @@ summary(t2)
 summary(t3)
 summary(t4)
 
+# 逆変換
+exp(prob)/(1+exp(prob))
