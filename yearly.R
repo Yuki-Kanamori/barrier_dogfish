@@ -135,6 +135,8 @@ plot(poly.barrier, border = "red", add = TRUE)
 range <- 200
 barrier.model <- inla.barrier.pcmatern(mesh, 
                                        barrier.triangles = barrier.tri)
+# barrier.model2 = inla.barrier.fem(mesh, 
+#                  barrier.triangles = barrier.tri)
 Q <- inla.rgeneric.q(barrier.model, "Q", theta = c(0, log(range)))
 
 
