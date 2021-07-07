@@ -280,8 +280,8 @@ make_data <-
       }
       return( Xconfig_cp )
     }
-    X1config_cp = create_Xconfig( Xconfig_cp=X1config_cp, n_c=n_c, n_p=dim(X1_gctp)[4] )
-    X2config_cp = create_Xconfig( Xconfig_cp=X2config_cp, n_c=n_c, n_p=dim(X2_gctp)[4] )
+    X1config_cp = create_Xconfig( Xconfig_cp=X1config_cp, n_c=n_c, n_p=dim(X1_gctp)[4] ) #ここ
+    X2config_cp = create_Xconfig( Xconfig_cp=X2config_cp, n_c=n_c, n_p=dim(X2_gctp)[4] ) #ここ
     
     ####################
     # Catchability covariates
