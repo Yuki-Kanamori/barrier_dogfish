@@ -51,7 +51,7 @@ for(m in month){
   
   # 1.3 Model settings
   FieldConfig = c(Omega1 = 1, Epsilon1 = 1, Omega2 = 1, Epsilon2 = 1) #factor analysis
-  RhoConfig = c(Beta1 = 2, Beta2 = 2, Epsilon1 = 2, Epsilon2 = 2) #0: fixed, 1: independent, 2:RW, 3:constant, 4:AR
+  RhoConfig = c(Beta1 = 0, Beta2 = 0, Epsilon1 = 0, Epsilon2 = 0) #0: fixed, 1: independent, 2:RW, 3:constant, 4:AR
   OverdispersionConfig = c("Eta1" = 0, "Eta2" = 0) #overdispersion
   ObsModel = c(PosDist = 2, Link = 0)
   Options = c(SD_site_density = 0, SD_site_logdensity = 0,
