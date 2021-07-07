@@ -3,6 +3,8 @@ make_parameters <-
             DataList,
             RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0) ){
     
+    DataList=TmbData
+    
     # Local function to make a random array
     rarray = function( dim, mean=0, sd=0.01 ) array( rnorm(prod(dim),mean=mean,sd=sd), dim=dim)
     
