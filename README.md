@@ -50,10 +50,14 @@ Ais_ijが0×2になっている．DG×2となるはず
 Ais_xが0になっている．DGの行数分だけ1が入る
 Ags_ijが0×2になっている．knot×2となるはず
 Ais_xが0になっている．knotの数分だけ1が入る
+
+loc_g = Extrapolation_List$Data_Extrap[ which(Extrapolation_List$Area_km2_x>0), c('E_km','N_km') ]
+スパース行列がよく分からん　dgTMatrix
+
 ②Parameters（make_model()とmake_parameters()）
 *Beta_rho1_fが0になっている．1が入る <-RhoConfigによって違う
 *Epsilon_rho1_fが0になっている．1が入る  <-RhoConfigによって違う
 *Beta_rho2_fが0になっている．1が入る  <-RhoConfigによって違う
 *Epsilon_rho2_fが0になっている．1が入る  <-RhoConfigによって違う
-*delta_iがNAになっている．何の数字が入る？（0.07583）<-make_parameters()は合っていそう．make_map()で何かしている．
+*delta_iがNAになっている．何の数字が入る？（0.07583）<-make_parameters()は合っていそう．make_map()で何かしている．make_map()じゃなくてやっぱりmake_parametersっぽいけど，関数を使わずに動かすと何も値が入らない．なぜ？乱数が入るように修正
 ③Map（make_model()とmake_map()）
