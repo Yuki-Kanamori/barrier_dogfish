@@ -47,7 +47,7 @@ make_model <-
     capture.output( packageDescription("VAST"), file=paste0(RunDir,"/packageDescription.txt") )
     capture.output( packageDescription("FishStatsUtils"), file=paste0(RunDir,"/packageDescription.txt"), append=TRUE )
     
-    # Parameters
+    # Parameters ここでエラーが出ている．make_parametersがダメ
     # TmbData=TmbData
     if( length(Parameters)==1 && Parameters=="generate" ) Parameters = make_parameters( Version=Version, DataList=TmbData, RhoConfig=RhoConfig )
     
