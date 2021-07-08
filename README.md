@@ -45,11 +45,11 @@ L_beta1_z, L_beta_2z, Beta_mean_1c, Beta_mean_2cが余分に入っている -> �
 Obj <- TMB::MakeADFun(data=TmbData, parameters=Parameters, hessian=FALSE, map=Map, random=Random, inner.method="newton", DLL=Version)でエラー: 型 "i" のオブジェクトからはスロット ("NULL") を得ることは出来ません 
 引数を一つずつ調べる
 ①TmbDataの中身（make_data_yk()）
-spdeがない
-Ais_ijが0×2になっている．DG×2となるはず
-Ais_xが0になっている．DGの行数分だけ1が入る
-Ags_ijが0×2になっている．knot×2となるはず
-Ais_xが0になっている．knotの数分だけ1が入る
+spdeがない -> MeshList$isotropic_spde$param.inla[c("M0","M1","M2")]がないから．spdeの中身を知る必要がある
+Ais_ijが0×2になっている．DG×2となるはず ->修正
+Ais_xが0になっている．DGの行数分だけ1が入る ->修正
+Ags_ijが0×2になっている．knot×2となるはず ->修正
+Ais_xが0になっている．knotの数分だけ1が入る ->修正
 
 loc_g = Extrapolation_List$Data_Extrap[ which(Extrapolation_List$Area_km2_x>0), c('E_km','N_km') ]
 スパース行列がよく分からん　dgTMatrix
