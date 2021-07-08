@@ -36,6 +36,57 @@ make_data_yk <-
             overlap_zz = matrix(ncol = 7,nrow = 0),
             ... ){
     
+    
+    # #==========#
+    # b_i = Data_Geostat[, 'Catch_KG']
+    # e_i = c_iz[,1]
+    # v_i = rep(0,length(b_i))
+    # # FieldConfig = c("Omega1" = "IID","Epsilon1" = "IID","Omega2" = "IID","Epsilon2" = "IID"),
+    # # ObsModel_ez = c("PosDist" = 1,"Link" = 0),
+    # # OverdispersionConfig = c("eta1" = 0,"eta2" = 0),
+    # # RhoConfig = c("Beta1" = 0,"Beta2" = 0,"Epsilon1" = 0,"Epsilon2" = 0),
+    # VamConfig = c("Method" = 0,"Rank" = 0,"Timing" = 0)
+    # # Aniso = TRUE,
+    # PredTF_i = rep(0,length(b_i))
+    # covariate_data = NULL
+    # X1_formula = ~0
+    # X2_formula = ~0
+    # X1config_cp = NULL
+    # X2config_cp = NULL
+    # X_contrasts = NULL
+    # catchability_data = NULL
+    # Q1_formula = ~0
+    # Q2_formula = ~0
+    # Q1config_k = NULL
+    # Q2config_k = NULL
+    # Network_sz = NULL
+    # F_ct = NULL
+    # F_init = 1
+    # CheckForErrors = TRUE
+    # yearbounds_zz = NULL
+    # Options = c()
+    # Expansion_cz = NULL
+    # Z_gm = NULL
+    # overlap_zz = matrix(ncol = 7,nrow = 0)
+    # #==========#
+    # Version = Version
+    # FieldConfig = FieldConfig 
+    # OverdispersionConfig = OverdispersionConfig
+    # RhoConfig = RhoConfig
+    # ObsModel = ObsModel
+    # c_iz = rep(0, nrow(Data_Geostat))
+    # b_i = Data_Geostat[, 'Catch_KG'] 
+    # a_i = rep(1, nrow(Data_Geostat)) #cpue
+    # #a_i = Data_Geostat[, 'AreaSwept_km2'], # catch and effort
+    # s_i = Data_Geostat[, 'knot_i'] - 1
+    # t_i = Data_Geostat[, 'Year']
+    # spatial_list = Spatial_List 
+    # Options = Options
+    # Aniso = TRUE
+    # # e_i = c_iz[,1]
+    # e_i = c_iz
+    # #==========#
+    
     # Deprecated inputs for backwards compatibility e.g., in transition from CPP Version < 8.0.0 to >= 8.0.0
     alternate_inputs = list( ... )
     if( missing(spatial_list) ){
@@ -797,8 +848,13 @@ make_data_yk <-
     if(Version%in%c("VAST_v9_1_0","VAST_v9_0_0","VAST_v8_6_0","VAST_v8_5_0","VAST_v8_4_0","VAST_v8_3_0","VAST_v8_2_0","VAST_v8_1_0","VAST_v8_0_0")){
       Return = list( "n_i"=n_i, "n_s"=c(MeshList$anisotropic_spde$n.spde,n_x,n_x)[Options_vec['Method']+1], "n_g"=n_g, "n_t"=n_t, "n_c"=n_c, "n_e"=n_e, "n_p"=dim(X1_itp)[3], "n_v"=n_v, "n_l"=n_l, "n_m"=ncol(Z_gm), "Options_list"=list("Options_vec"=Options_vec,"Options"=Options2use,"yearbounds_zz"=yearbounds_zz,"Expansion_cz"=Expansion_cz), "FieldConfig"=FieldConfig_input, "RhoConfig"=RhoConfig, "OverdispersionConfig"=OverdispersionConfig_input, "ObsModel_ez"=ObsModel_ez, "VamConfig"=VamConfig, "Xconfig_zcp"=abind::abind(X1config_cp,X2config_cp,along=3), "include_data"=TRUE, "b_i"=b_i, "a_i"=a_i, "c_iz"=c_iz, "e_i"=e_i, "t_iz"=matrix(tprime_i,ncol=1), "v_i"=match(v_i,sort(unique(v_i)))-1, "PredTF_i"=PredTF_i, "a_gl"=a_gl, "X_itp"=X1_itp, "X_gtp"=array(X1_gctp[,1,,],dim(X1_gctp)[c(1,3,4)]), "Q_ik"=Q1_ik, "t_yz"=t_yz, "Z_gm"=Z_gm, "F_ct"=F_ct, "parent_s"=Network_sz[,'parent_s']-1, "child_s"=Network_sz[,'child_s']-1, "dist_s"=Network_sz[,'dist_s'], "spde"=list(), "spde_aniso"=list(), "M0"=GridList$M0, "M1"=GridList$M1, "M2"=GridList$M2, "Ais_ij"=cbind(spatial_list$A_is@i,spatial_list$A_is@j), "Ais_x"=spatial_list$A_is@x, "Ags_ij"=cbind(spatial_list$A_gs@i,spatial_list$A_gs@j), "Ags_x"=spatial_list$A_gs@x )
     }
+    
+    
     if(Version%in%c("VAST_v9_2_0")){
-      Return = list( "n_i"=n_i, "n_s"=c(MeshList$anisotropic_spde$n.spde,n_x,n_x)[Options_vec['Method']+1], "n_g"=n_g, "n_t"=n_t, "n_c"=n_c, "n_e"=n_e, 
+      Return = list( "n_i"=n_i, 
+                     # "n_s"=c(MeshList$anisotropic_spde$n.spde,n_x,n_x)[Options_vec['Method']+1],
+                     "n_s"=c(MeshList$anisotropic_spde$f$n,n_x,n_x)[Options_vec['Method']+1],
+                     "n_g"=n_g, "n_t"=n_t, "n_c"=n_c, "n_e"=n_e, 
                      # "n_p"=dim(X1_itp)[3],
                      "n_p"=1,
                      "n_v"=n_v, "n_l"=n_l, "n_m"=ncol(Z_gm), "Options_list"=list("Options_vec"=Options_vec,"Options"=Options2use,"yearbounds_zz"=yearbounds_zz,"Expansion_cz"=Expansion_cz,"overlap_zz"=overlap_zz), "FieldConfig"=FieldConfig_input, "RhoConfig"=RhoConfig, "OverdispersionConfig"=OverdispersionConfig_input, "ObsModel_ez"=ObsModel_ez, "VamConfig"=VamConfig, 
@@ -809,6 +865,8 @@ make_data_yk <-
                      "X_itp"=array(0, dim = c(length(b_i), length(unique(t_i)), length(unique(c_iz)))), "X_gtp"=array(0, dim = c(length(unique(s_i)), length(unique(t_i)), length(unique(c_iz)))), "Q_ik"=matrix(0, nrow = length(unique(s_i)), ncol = length(unique(c_iz))),
                      "t_yz"=t_yz, "Z_gm"=Z_gm, "F_ct"=F_ct, "parent_s"=Network_sz[,'parent_s']-1, "child_s"=Network_sz[,'child_s']-1, "dist_s"=Network_sz[,'dist_s'], "spde"=list(), "spde_aniso"=list(), "M0"=GridList$M0, "M1"=GridList$M1, "M2"=GridList$M2, "Ais_ij"=cbind(spatial_list$A_is@i,spatial_list$A_is@j), "Ais_x"=spatial_list$A_is@x, "Ags_ij"=cbind(spatial_list$A_gs@i,spatial_list$A_gs@j), "Ags_x"=spatial_list$A_gs@x )
     }
+    
+    
     if(Version%in%c("VAST_v9_3_0")){
       Return = list( "n_i"=n_i, "n_s"=c(MeshList$anisotropic_spde$n.spde,n_x,n_x,MeshList$anisotropic_spde$n.spde)[Options_vec['Method']+1], "n_g"=n_g, "n_t"=n_t, "n_c"=n_c, "n_e"=n_e, "n_p"=dim(X1_itp)[3], "n_v"=n_v, "n_l"=n_l, "n_m"=ncol(Z_gm), "Options_list"=list("Options_vec"=Options_vec,"Options"=Options2use,"yearbounds_zz"=yearbounds_zz,"Expansion_cz"=Expansion_cz,"overlap_zz"=overlap_zz), "FieldConfig"=FieldConfig_input, "RhoConfig"=RhoConfig, "OverdispersionConfig"=OverdispersionConfig_input, "ObsModel_ez"=ObsModel_ez, "VamConfig"=VamConfig, "Xconfig_zcp"=abind::abind(X1config_cp,X2config_cp,along=3), "include_data"=TRUE, "b_i"=b_i, "a_i"=a_i, "c_iz"=c_iz, "e_i"=e_i, "t_iz"=matrix(tprime_i,ncol=1), "v_i"=match(v_i,sort(unique(v_i)))-1, "PredTF_i"=PredTF_i, "a_gl"=a_gl, "X_itp"=X1_itp, "X_gtp"=array(X1_gctp[,1,,],dim(X1_gctp)[c(1,3,4)]), "Q_ik"=Q1_ik, "t_yz"=t_yz, "Z_gm"=Z_gm, "F_ct"=F_ct, "parent_s"=Network_sz[,'parent_s']-1, "child_s"=Network_sz[,'child_s']-1, "dist_s"=Network_sz[,'dist_s'], "spde"=list(), "spde_aniso"=list(), "spdeMatricesBarrier"=list(), "Barrier_scaling"=NA, "M0"=GridList$M0, "M1"=GridList$M1, "M2"=GridList$M2, "Ais_ij"=cbind(spatial_list$A_is@i,spatial_list$A_is@j), "Ais_x"=spatial_list$A_is@x, "Ags_ij"=cbind(spatial_list$A_gs@i,spatial_list$A_gs@j), "Ags_x"=spatial_list$A_gs@x )
     }
@@ -825,6 +883,8 @@ make_data_yk <-
       Return = list( "n_i"=n_i, "n_s"=c(MeshList$anisotropic_spde$n.spde,n_x,n_x,MeshList$anisotropic_spde$n.spde)[Options_vec['Method']+1], "n_g"=n_g, "n_t"=n_t, "n_c"=n_c, "n_e"=n_e, "n_p1"=dim(X1_itp)[3], "n_p2"=dim(X2_itp)[3], "n_v"=n_v, "n_l"=n_l, "n_m"=ncol(Z_gm), "Options_list"=list("Options_vec"=Options_vec,"Options"=Options2use,"yearbounds_zz"=yearbounds_zz,"Expansion_cz"=Expansion_cz,"overlap_zz"=overlap_zz,"zerosum_penalty"=matrix(Options2use['zerosum_penalty'],1,1)), "FieldConfig"=FieldConfig_input, "RhoConfig"=RhoConfig, "OverdispersionConfig"=OverdispersionConfig_input, "ObsModel_ez"=ObsModel_ez, "VamConfig"=VamConfig, "X1config_cp"=X1config_cp, "X2config_cp"=X2config_cp, "Q1config_k"=Q1config_k, "Q2config_k"=Q2config_k, "include_data"=TRUE, "b_i"=b_i, "a_i"=a_i, "c_iz"=c_iz, "e_i"=e_i, "t_i"=tprime_i, "v_i"=match(v_i,sort(unique(v_i)))-1, "PredTF_i"=PredTF_i, "a_gl"=a_gl, "X1_ip"=array(X1_itp[,1,],dim=dim(X1_itp)[c(1,3)]), "X1_gctp"=X1_gctp, "X2_ip"=array(X2_itp[,1,],dim=dim(X2_itp)[c(1,3)]), "X2_gctp"=X2_gctp, "Q1_ik"=Q1_ik, "Q2_ik"=Q2_ik, "Z_gm"=Z_gm, "F_ct"=F_ct, "parent_s"=Network_sz[,'parent_s']-1, "child_s"=Network_sz[,'child_s']-1, "dist_s"=Network_sz[,'dist_s'], "spde"=list(), "spde_aniso"=list(), "spdeMatricesBarrier"=list(), "Barrier_scaling"=NA, "M0"=GridList$M0, "M1"=GridList$M1, "M2"=GridList$M2, "Ais_ij"=cbind(spatial_list$A_is@i,spatial_list$A_is@j), "Ais_x"=spatial_list$A_is@x, "Ags_ij"=cbind(spatial_list$A_gs@i,spatial_list$A_gs@j), "Ags_x"=spatial_list$A_gs@x )
     }
     if( is.null(Return) ) stop("`Version` provided does not match the list of possible values")
+    
+    # ここでspdeが消える
     if( "spde" %in% names(Return) ) Return[['spde']] = MeshList$isotropic_spde$param.inla[c("M0","M1","M2")]
     # if( "spde_aniso" %in% names(Return) ) Return[['spde_aniso']] = list("n_s"=MeshList$anisotropic_spde$n.spde, "n_tri"=nrow(MeshList$anisotropic_mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0"=MeshList$anisotropic_spde$param.inla$M0, "G0_inv"=INLA::inla.as.dgTMatrix(solve(MeshList$anisotropic_spde$param.inla$M0)) )
     if( "spde_aniso" %in% names(Return) ) Return[['spde_aniso']] = list("n_s"=MeshList$anisotropic_spde$f$n, "n_tri"=nrow(MeshList$anisotropic_mesh$graph$tv), "Tri_Area"=MeshList$Tri_Area, "E0"=MeshList$E0, "E1"=MeshList$E1, "E2"=MeshList$E2, "TV"=MeshList$TV-1, "G0"=MeshList$anisotropic_spde$param.inla$M0, "G0_inv"=NULL)
