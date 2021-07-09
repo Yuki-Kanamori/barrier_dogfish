@@ -45,7 +45,7 @@ L_beta1_z, L_beta_2z, Beta_mean_1c, Beta_mean_2cが余分に入っている -> �
 Obj <- TMB::MakeADFun(data=TmbData, parameters=Parameters, hessian=FALSE, map=Map, random=Random, inner.method="newton", DLL=Version)でエラー: 型 "i" のオブジェクトからはスロット ("NULL") を得ることは出来ません 
 引数を一つずつ調べる
 ①TmbDataの中身（make_data_yk()）
-spdeがない -> MeshList$isotropic_spde$param.inla[c("M0","M1","M2")]がないから．spdeの中身を知る必要がある
+spdeがない -> MeshList$isotropic_spde$param.inla[c("M0","M1","M2")]がないから．spdeの中身を知る必要がある．
 Ais_ijが0×2になっている．DG×2となるはず ->修正
 Ais_xが0になっている．DGの行数分だけ1が入る ->修正
 Ags_ijが0×2になっている．knot×2となるはず ->修正
@@ -76,3 +76,10 @@ loc_g = Extrapolation_List$Data_Extrap[ which(Extrapolation_List$Area_km2_x>0), 
 *Epsilon_rho2_fが0になっている．1が入る  <-RhoConfigによって違う
 *delta_iがNAになっている．何の数字が入る？（0.07583）<-make_parameters()は合っていそう．make_map()で何かしている．make_map()じゃなくてやっぱりmake_parametersっぽいけど，関数を使わずに動かすと何も値が入らない．なぜ？乱数が入るように修正
 ③Map（make_model()とmake_map()）
+
+
+
+Cppファイル
+Q_spde()でスパースマトリクスを作成 -> GMRF()でガウシアンマルコフランダムフィールドを作成．Q_spdeにbarrier modelの結果は入れられないっぽい．RでQまで作って，直接与えるのが良い？
+n_s: メッシュのノードの数？
+n_g: spatial_list$n_gらしい．何？spatial_list$n_g = nrow(a_gl)らしい．a_glって何？a_gl = as.matrix(Extrapolation_List[["a_el"]][ which(Extrapolation_List$Area_km2_x>0), ]) timescale = Fの時はExtrapolation_List[["a_el"]]．n_g = a_elとはならない．結局knot数なのでは？
