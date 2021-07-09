@@ -728,6 +728,7 @@ Type objective_function<Type>::operator() ()
 
   // Derived parameters
   Type Range_raw1, Range_raw2;
+  // Options_vec(7) is Calculate_Coherence
   if( Options_vec(7)==0 ){
     Range_raw1 = sqrt(8) / exp( logkappa1 );   // Range = approx. distance @ 10% correlation
     Range_raw2 = sqrt(8) / exp( logkappa2 );     // Range = approx. distance @ 10% correlation
@@ -885,7 +886,8 @@ Type objective_function<Type>::operator() ()
   //Options_vec(7) is Method; "Mesh"=0,"Grid"=1,"Spherical_mesh"=0,"Stream_network"=2,"Barrier"=3
   //Options_vec(0) is Aniso; Mesh = 1, the others = 0
   if( (Options_vec(7)==0) & (Options_vec(0)==0) ){
-    // Q_spde: Precision matrix eqn (10) in Lindgren et al. (2011)
+    // Q_spde(spde, kappa, H when using aniso): Precision matrix eqn (10) in Lindgren et al. (2011)
+    // 
     Q1 = Q_spde(spde, exp(logkappa1));
     Q2 = Q_spde(spde, exp(logkappa2));
   }
@@ -905,6 +907,8 @@ Type objective_function<Type>::operator() ()
   /////
   // 1st component
   /////
+  // GMRF(Eigen::SparseMatrix< scalartype >, init, bool) constructs object to evaluate density of Gaussian Markov Random Field (GMRF) for sparse Q.
+  // bool  
   gmrf_Q = GMRF( Q1, bool(Options(9)) );
 
   // Omega1
