@@ -1,4 +1,4 @@
-make_model <-
+make_model_yk <-
   function( TmbData,
             Version,
             RhoConfig=c("Beta1"=0,"Beta2"=0,"Epsilon1"=0,"Epsilon2"=0),
@@ -15,6 +15,27 @@ make_model <-
             RunDir=getwd(),
             CompileDir=TmbDir,
             build_model=TRUE ){
+    #=============#
+    Npool=0
+    ConvergeTol=1
+    Use_REML=FALSE
+    loc_x=NULL
+    Parameters="generate"
+    Random="generate"
+    Map="generate"
+    DiagnosticDir=NULL
+    TmbDir=system.file("executables",package="VAST")
+    RunDir=getwd()
+    CompileDir=TmbDir
+    build_model=TRUE 
+    #=============#
+    TmbData = TmbData
+    RunDir = DateFile
+    Version = Version
+    RhoConfig = RhoConfig
+    loc_x = Spatial_List$loc_x
+    Method = Spatial_List$Method
+    #=============#
     
     # Extract Options and Options_vec (depends upon version)
     if( all(c("Options","Options_vec") %in% names(TmbData)) ){
@@ -49,11 +70,24 @@ make_model <-
     
     # Parameters ここでエラーが出ている．make_parametersがダメ
     # TmbData=TmbData
-    if( length(Parameters)==1 && Parameters=="generate" ) Parameters = make_parameters( Version=Version, DataList=TmbData, RhoConfig=RhoConfig )
+    # if( length(Parameters)==1 && Parameters=="generate" ) Parameters = make_parameters( Version=Version, DataList=TmbData, RhoConfig=RhoConfig )
+    if( length(Parameters)==1 && Parameters=="generate" ){
+      Parameters = make_parameters_yk( Version=Version, DataList=TmbData, RhoConfig=RhoConfig )
+      # Parameters$Beta_rho1_f = 1
+      # Parameters$Beta_rho2_f = 1
+      # Parameters$Epsilon_rho1_f = 1
+      # Parameters$Epsilon_rho2_f = 1
+    } 
+    # if( length(Parameters)==1 && Parameters=="generate" ) Parameters = Return
     
     # Which parameters are turned off
+    # ここでエラー
     if( length(Map)==1 && Map=="generate" ){
       Map = make_map( DataList=TmbData, TmbParams=Parameters, RhoConfig=RhoConfig, Npool=Npool )
+      # Map$L_beta1_z = NULL
+      # Map$L_beta2_z = NULL
+      # Map$Beta_mean1_c = NULL
+      # Map$Beta_mean2_c = NULL
     }else{
       warning( "Please carefully check starting values for all parameters to ensure that mapping off parameters will work as expected.")
     }
