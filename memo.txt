@@ -1,0 +1,181 @@
+// Function to import R list for user-defined Options_vec and Options, packaged as list Options_list in TmbData
+Rデータの読み込みと定義．options_listを作成している．Options_vec, Options, yearbounds_zz, Expansion_cz, overlap_zzはTmbData$Options_listに入っている
+どうしてTmbData$Options_listだと分かるのだろうか．．？
+template<class Type>
+
+struct options_list {
+  vector<int> Options_vec;
+  vector<int> Options;
+  matrix<int> yearbounds_zz;
+  matrix<int> Expansion_cz;
+  matrix<int> overlap_zz;
+  options_list(SEXP x){ // Constructor
+    Options_vec = asVector<int>(getListElement(x,"Options_vec"));
+    Options = asVector<int>(getListElement(x,"Options"));
+    yearbounds_zz = asMatrix<int>(getListElement(x,"yearbounds_zz"));
+    Expansion_cz = asMatrix<int>(getListElement(x,"Expansion_cz"));
+    overlap_zz = asMatrix<int>(getListElement(x,"overlap_zz"));
+  }
+};
+
+// Needed for returning SparseMatrix for Ornstein-Uhlenbeck network correlations
+河川のモデルでだけ必要？
+
+
+以下で色んな関数を作ってる？
+// Function for detecting NAs
+template<class Type>
+bool isNA(Type x){
+  return R_IsNA(asDouble(x));
+}
+
+// Posfun
+template<class Type>
+Type posfun(Type x, Type lowerlimit, Type &pen){
+  pen += CppAD::CondExpLt(x,lowerlimit,Type(0.01)*pow(x-lowerlimit,2),Type(0));
+  return CppAD::CondExpGe(x,lowerlimit,x,lowerlimit/(Type(2)-x/lowerlimit));
+}
+
+// Variance
+template<class Type>
+Type var( array<Type> vec ){
+  Type vec_mod = vec - (vec.sum()/vec.size());
+  Type res = pow(vec_mod, 2).sum() / vec.size();
+  return res;
+}
+
+// square
+template<class Type>
+Type square(Type x){
+  return pow(x,2);
+}
+
+// sqrt
+template<class Type>
+Type sqrt(Type x){
+  return pow(x,0.5);
+}
+
+// dlnorm
+template<class Type>
+Type dlnorm(Type x, Type meanlog, Type sdlog, int give_log=0){
+  //return 1/(sqrt(2*M_PI)*sd) * exp(-.5*pow((x-mean)/sd,2));
+  Type logres = dnorm( log(x), meanlog, sdlog, true) - log(x);
+  if(give_log) return logres; else return exp(logres);
+}
+
+// dinverse_gaussian
+template<class Type>
+Type dinverse_gaussian(Type x, Type mean, Type cv, int give_log=0){
+  //return sqrt(lambda/(2*M_PI*pow(x,3))) * exp( -1.0 * lambda*pow(x-mean,2) / (2*pow(mean,2)*x) );
+  Type sd = cv * mean;
+  Type lambda = pow(mean,3) / pow(sd,2);
+  Type logres = 0.5*(log(lambda) - 3.0*log(x) - log(2*M_PI)) - ( lambda*pow(x-mean,2) / (2*pow(mean,2)*x) );
+  if(give_log) return logres; else return exp(logres);
+}
+
+// Generate loadings matrix for covariance
+template<class Type>
+matrix<Type> create_loadings_covariance( vector<Type> L_val, int n_rows, int n_cols ){
+  matrix<Type> L_rc(n_rows, n_cols);
+  int Count = 0;
+  for(int r=0; r<n_rows; r++){
+  for(int c=0; c<n_cols; c++){
+    if(r>=c){
+      L_rc(r,c) = L_val(Count);
+      Count++;
+    }else{
+      L_rc(r,c) = 0.0;
+    }
+  }}
+  return L_rc;
+}
+
+// Generate loadings matrix for correlation
+// https://mc-stan.org/docs/2_21/reference-manual/cholesky-factors-of-correlation-matrices-1.html
+template<class Type>
+matrix<Type> create_loadings_correlation( vector<Type> L_val, int n_rows, int n_cols ){
+  matrix<Type> L_rc(n_rows, n_cols);
+  matrix<Type> Z_rc(n_rows, n_cols);
+  int Count = 0;
+  Type sum_squares;
+  for(int r=0; r<n_rows; r++){
+  for(int c=0; c<n_cols; c++){
+    if(r>c){
+      Z_rc(r,c) = 2.0*invlogit(L_val(Count)) - 1.0;      // tanh(L_val(Count));  //
+      Count++;
+    }
+    if(r<c){
+      Z_rc(r,c) = 0.0;
+    }
+    if(r==c){
+      Z_rc(r,c) = 1.0;
+    }
+  }}
+  for(int r=0; r<n_rows; r++){
+    sum_squares = 0;
+    for(int c=0; c<n_cols; c++){
+      sum_squares += square(Z_rc(r,c));
+    }
+    for(int c=0; c<n_cols; c++){
+      L_rc(r,c) = Z_rc(r,c) / sqrt(sum_squares);
+    }
+  }
+  return L_rc;
+}
+
+// Generate loadings matrix for stationary AR1 process, matching density::AR1()
+template<class Type>
+matrix<Type> create_loadings_AR1( Type rhoinput, Type ln_margsd, int n_rows ){
+  Type rho = 2.0*invlogit(rhoinput) - 1;
+  Type margsd = exp( ln_margsd );
+  matrix<Type> L_rc(n_rows, n_rows);
+  L_rc.setZero();
+  for( int c=0; c<n_rows; c++ ){
+  for( int r=c; r<n_rows; r++ ){
+    L_rc(r,c) = margsd * pow(rho, r-c);
+    if( c >= 1 ){
+      L_rc(r,c) = L_rc(r,c) * sqrt(1 - square(rho));
+    }
+  }}
+  return L_rc;
+}
+
+// Create loadings matrix for general case,
+template<class Type>
+matrix<Type> create_loadings_general( vector<Type> L_val, int n_rows, int n_f, bool use_covariance ){
+  if( n_f == -2 ){
+    // IID
+    matrix<Type> L_rc(n_rows, n_rows);
+    L_rc.setZero();
+    for( int r=0; r<n_rows; r++ ){
+      L_rc(r,r) = L_val(r);
+    }
+    return L_rc;
+  }else if( n_f == -1 ){
+    // Turn off
+    matrix<Type> L_rc(n_rows, 1);
+    L_rc.setZero();
+    return L_rc;
+  }else if( n_f == -3 ){
+    // Identity matrix
+    matrix<Type> L_rc(n_rows, n_rows);
+    L_rc.setIdentity();
+    return L_rc;
+  }else if( n_f == 0 ){
+    // AR1
+    matrix<Type> L_rc = create_loadings_AR1( L_val(0), L_val(1), n_rows );
+    return L_rc;
+  }else{
+    // Factor
+    if(use_covariance==false){
+      matrix<Type> L_rc = create_loadings_correlation( L_val, n_rows, n_f );
+      return L_rc;
+    }else{
+      matrix<Type> L_rc = create_loadings_covariance( L_val, n_rows, n_f );
+      return L_rc;
+    }
+  }
+}
+
+
